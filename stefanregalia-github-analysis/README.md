@@ -6,7 +6,7 @@ Stefan Regalia
 
 ## Data Source
 
-I worked with the Authenticated GitHub REST API to examine differences in commit message sentiment analysis, contributor concentration, weekend activity, and formalization ratio (proportion of activity conducted through pull requests compared to commits) over time between 3 performance-related (sci-kit learn, numpy, and polars) and simplicity-related repositories (pandas, matplotlib, plotly.py).
+I worked with the Authenticated GitHub REST API to examine differences in commit message sentiment analysis, contributor concentration, weekend activity, and formalization ratio (proportion of activity conducted through pull requests compared to commits) over time between 3 performance-related (sci-kit learn, numpy, and polars) and 3 simplicity-related repositories (pandas, matplotlib, and plotly.py).
 
 ## Challenges / Obstacles
 
