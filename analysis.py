@@ -10,6 +10,12 @@ logging.basicConfig(level=logging.INFO, format='%(asctime)s - %(levelname)s - %(
                     filename='analysis.log')
 logger=logging.getLogger(__name__)
 
+
+def obtain_format():
+    con = duckdb.connect(database='packages.duckdb',read_only=True)
+    print(con.execute("DESCRIBE commits").df())
+
+
 def analyze_commits():
     # con=duckdb.connect(database='packages.duckdb',read_only=False)
     con=duckdb.connect(database='packages.duckdb',read_only=True)
@@ -50,6 +56,11 @@ def visualize_hourly_commits():
         logger.info("Fetched commit counts per package, hourly.")
 
         plt.clf()
+
+        # scikit-learn hourly
+        scikit_learn_df = commit_counts_hourly[commit_counts_hourly['package'] == 'scikit-learn']
+        plt.plot(scikit_learn_df['hour'], scikit_learn_df['commits'], color='#283618', label='scikit-learn')
+        logger.info("finished plotting scikit-learn hourly")
 
         # pandas hourly
         pandas_df = commit_counts_hourly[commit_counts_hourly['package'] == 'pandas']
@@ -122,6 +133,11 @@ def visualize_daily_commits():
 
         plt.clf()
 
+       # scikit-learn daily
+        scikit_learn_df = commit_counts_daily[commit_counts_daily['package'] == 'scikit-learn']
+        plt.plot(scikit_learn_df['day_of_year'], scikit_learn_df['commits'], color='#283618', label='scikit-learn')
+        logger.info("finished plotting scikit-learn daily")
+
         # pandas daily
         pandas_df = commit_counts_daily[commit_counts_daily['package'] == 'pandas']
         plt.plot(pandas_df['day_of_year'], pandas_df['commits'], color='#274c77', label='pandas')
@@ -181,6 +197,11 @@ def visualize_weekly_commits():
         logger.info("Fetched commit counts per package, weekly.")
 
         plt.clf()
+
+        # scikit-learn weekly
+        scikit_learn_df = commit_counts_weekly[commit_counts_weekly['package'] == 'scikit-learn']
+        plt.plot(scikit_learn_df['week'], scikit_learn_df['commits'], color='#283618', label='scikit-learn')
+        logger.info("finished plotting scikit-learn weekly")
 
         # pandas weekly
         pandas_df = commit_counts_weekly[commit_counts_weekly['package'] == 'pandas']
@@ -242,6 +263,11 @@ def visualize_monthly_commits():
 
         plt.clf()
 
+        # scikit-learn monthly
+        scikit_learn_df = commit_counts_monthly[commit_counts_monthly['package'] == 'scikit-learn']
+        plt.plot(scikit_learn_df['month'], scikit_learn_df['commits'], color='#283618', label='scikit-learn')
+        logger.info("finished plotting scikit-learn monthly")
+
         # pandas monthly
         pandas_df = commit_counts_monthly[commit_counts_monthly['package'] == 'pandas']
         plt.plot(pandas_df['month'], pandas_df['commits'], color='#274c77', label='pandas')
@@ -286,16 +312,56 @@ def visualize_monthly_commits():
         logging.error(f"An error occurred during monthly visualizations: {e}")
 
 
+def get_last1000_commit_users(package):
+    con=duckdb.connect(database="packages.duckdb", read_only=True)
+    logger.info("Connected to duckdb for obtaining past 1000 commit users that aren't bots or PR accepters")
 
-# def format_obtain ():
-#     con = duckdb.connect(database='packages.duckdb',read_only=True)
-#     print(con.execute("DESCRIBE commits").df())
+    try:
+        last1000_users = con.execute(f"""SELECT author, COUNT(*) AS commits
+                                         FROM (
+                                             SELECT *
+                                             FROM commits
+                                             WHERE package = ?
+                                             ORDER BY date DESC
+                                             LIMIT 1000
+                                         )
+                                         WHERE author NOT LIKE '%[bot]%'
+                                         GROUP BY author
+                                         ORDER BY commits DESC;
+                                         """, [package],).df()
+
+        filename = f"{package}_last1000commitusers.txt"
+        with open(filename, "w") as file:
+            file.write(
+                f"Meaningful commit users (non-bot authors) in the last 1000 commits " f"for package '{package}':\n\n")
+            for _, row in last1000_users.iterrows():
+                file.write(f"{row['author']}: {row['commits']} commits\n")
+
+        num_users = last1000_users.shape[0]
+        msg = (f"Wrote meaningful commit users for {package} to file '{filename}' \n" f"   -  with {num_users} unique authors." )
+        print(msg)
+        logger.info(msg)
+
+    except Exception as e:
+        logger.info(f"An error occurred during last 1000 commit user obtaining: {e}")
+
 
 
 if __name__ == "__main__":
+    packages = ["scikit-learn", "pandas", "matplotlib", "plotly", "numpy"]
+
     analyze_commits()
-    # format_obtain()
+    print("\n")
+    
     visualize_hourly_commits()
+    print("hourly visualization in hourly_commits.png")
     visualize_daily_commits()
+    print("daily visualization in daily_commits.png")
     visualize_weekly_commits()
+    print("weekly visualization in weekly_commits.png")
     visualize_monthly_commits()
+    print("monthly visualization in monthly_commits.png\n")
+
+    for package in packages:
+        get_last1000_commit_users(package)
+    print("\n")
