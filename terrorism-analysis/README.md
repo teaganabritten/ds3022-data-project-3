@@ -1,15 +1,22 @@
 # Global Terrorism: How Has it Changed and How is it Reported?
 
-### Authors: Teagan Britten and Vinith Jayamani 
+#### Authors: Teagan Britten and Vinith Jayamani 
 
-## Data Source
+### Data Source
 Global Terrorism Database (GTD):
 https://www.start.umd.edu/data-tools/GTD
 
 
-## Codebook
+### Codebook
 GTD Codebook (under “GTD Codebook”):
 https://www.start.umd.edu/using-gtd
+
+### Link to Streamlit Dashboard:
+https://teaganabritten-dataproject3-gtd-dashboard-vbrkcv.streamlit.app/
+
+### Link to Github Repository (Containing full work):
+https://github.com/teaganabritten/dataproject3
+
 
 
 Our data has been collected from two separate locations to facilitate our analysis. One of these sources is the Global Terrorism Database, or GTD, that contains information on over two hundred thousand terrorist attacks dating back to 1970. Entries include the type of attack, the location, and the suspected motive or affiliation of the attacker/s.
@@ -35,5 +42,3 @@ In contrast, the NewsAPI stream illustrates short-term, media-driven narratives,
 ![image](./visualisations/title_wordcloud.png)
 
 ![image](./visualisations/news_sources.png)
-
-https://teaganabritten-dataproject3-gtd-dashboard-vbrkcv.streamlit.app/
